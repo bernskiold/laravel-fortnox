@@ -14,13 +14,15 @@ use BernskioldMedia\Fortnox\Resources\Sie;
 use BernskioldMedia\Fortnox\Resources\Supplier;
 use BernskioldMedia\Fortnox\Resources\SupplierInvoice;
 use BernskioldMedia\Fortnox\Resources\SupplierInvoicePayment;
+use BernskioldMedia\Fortnox\Resources\Voucher;
 
 class Fortnox
 {
 
     public function __construct(
         protected FortnoxClient $client
-    ) {
+    )
+    {
     }
 
     public function absenceTransactions(): AbsenceTransaction
@@ -81,6 +83,11 @@ class Fortnox
     public function supplierInvoicePayments(): SupplierInvoicePayment
     {
         return new SupplierInvoicePayment($this->client);
+    }
+
+    public function vouchers(): Voucher
+    {
+        return new Voucher($this->client);
     }
 
 }
