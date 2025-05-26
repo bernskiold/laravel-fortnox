@@ -6,7 +6,6 @@ use BernskioldMedia\Fortnox\Exceptions\InvalidParameter;
 
 trait HasPagination
 {
-
     public function perPage(int $amount): static
     {
         if ($amount > 500) {
@@ -31,5 +30,4 @@ trait HasPagination
 
         return $this;
     }
-
 }

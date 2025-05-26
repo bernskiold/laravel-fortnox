@@ -7,4 +7,3 @@ use Exception;
 class TokenRequestException extends Exception
 {
 }
-

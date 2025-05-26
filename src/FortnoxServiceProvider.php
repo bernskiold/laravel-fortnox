@@ -8,7 +8,6 @@ use BernskioldMedia\Fortnox\OAuth\FortnoxOAuth;
 use BernskioldMedia\Fortnox\OAuth\Storage\CacheTokenStorage;
 use BernskioldMedia\Fortnox\OAuth\Storage\DatabaseTokenStorage;
 use BernskioldMedia\Fortnox\OAuth\Storage\FileTokenStorage;
-use Illuminate\Support\Facades\Route;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
