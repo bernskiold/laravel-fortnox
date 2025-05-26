@@ -2,6 +2,9 @@
 
 namespace BernskioldMedia\Fortnox;
 
+use BernskioldMedia\Fortnox\Exceptions\OAuth\InvalidAuthorizationCodeException;
+use BernskioldMedia\Fortnox\Exceptions\OAuth\InvalidStateException;
+use BernskioldMedia\Fortnox\Exceptions\OAuth\TokenRequestException;
 use BernskioldMedia\Fortnox\Resources\AbsenceTransaction;
 use BernskioldMedia\Fortnox\Resources\Account;
 use BernskioldMedia\Fortnox\Resources\AccountChart;
@@ -23,6 +26,88 @@ class Fortnox
         protected FortnoxClient $client
     )
     {
+    }
+
+    /**
+     * Set the tenant ID for OAuth2 authentication.
+     *
+     * @param string $tenantId
+     * @return $this
+     * @throws TokenRequestException
+     */
+    public function forTenant(string $tenantId): self
+    {
+        $this->client->forTenant($tenantId);
+        
+        return $this;
+    }
+
+    /**
+     * Get the authorization URL for the OAuth2 flow.
+     *
+     * @param string|null $state
+     * @param string|null $scope
+     * @param array $additionalParams
+     * @return string
+     */
+    public function getAuthorizationUrl(?string $state = null, ?string $scope = null, array $additionalParams = []): string
+    {
+        return $this->client->oauth()->getAuthorizationUrl($state, $scope, $additionalParams);
+    }
+
+    /**
+     * Exchange an authorization code for an access token.
+     *
+     * @param string $code
+     * @param string $state
+     * @param string $expectedState
+     * @param string $tenantId
+     * @return array
+     * @throws InvalidAuthorizationCodeException
+     * @throws InvalidStateException
+     * @throws TokenRequestException
+     */
+    public function exchangeAuthorizationCode(
+        string $code,
+        string $state,
+        string $expectedState,
+        string $tenantId
+    ): array {
+        return $this->client->oauth()->exchangeAuthorizationCode($code, $state, $expectedState, $tenantId);
+    }
+
+    /**
+     * Refresh an access token using a refresh token.
+     *
+     * @param string $tenantId
+     * @return array
+     * @throws TokenRequestException
+     */
+    public function refreshToken(string $tenantId): array
+    {
+        return $this->client->oauth()->refreshToken($tenantId);
+    }
+
+    /**
+     * Check if a token exists for a specific tenant.
+     *
+     * @param string $tenantId
+     * @return bool
+     */
+    public function hasToken(string $tenantId): bool
+    {
+        return $this->client->oauth()->hasToken($tenantId);
+    }
+
+    /**
+     * Delete the token for a specific tenant.
+     *
+     * @param string $tenantId
+     * @return void
+     */
+    public function deleteToken(string $tenantId): void
+    {
+        $this->client->oauth()->deleteToken($tenantId);
     }
 
     public function absenceTransactions(): AbsenceTransaction

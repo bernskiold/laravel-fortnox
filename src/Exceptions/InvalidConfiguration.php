@@ -22,4 +22,29 @@ class InvalidConfiguration extends Exception
         return new static('Missing Fornox Base URL. To use the Fortnox API you need a non-empty base URL set.');
     }
 
+    public static function missingClientId(): self
+    {
+        return new static('Missing client ID. To use the Fortnox OAuth2 API you need to set a valid client ID.');
+    }
+
+    public static function missingRedirectUri(): self
+    {
+        return new static('Missing redirect URI. To use the Fortnox OAuth2 API you need to set a valid redirect URI.');
+    }
+
+    public static function missingAuthUrl(): self
+    {
+        return new static('Missing authorization URL. To use the Fortnox OAuth2 API you need to set a valid authorization URL.');
+    }
+
+    public static function missingTokenUrl(): self
+    {
+        return new static('Missing token URL. To use the Fortnox OAuth2 API you need to set a valid token URL.');
+    }
+
+    public static function missingTenantId(): self
+    {
+        return new static('Missing tenant ID. When using OAuth2 authentication, you must provide a tenant ID.');
+    }
+
 }
