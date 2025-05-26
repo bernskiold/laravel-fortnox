@@ -9,7 +9,6 @@ use BernskioldMedia\Fortnox\Exceptions\OAuth\TokenRequestException;
 use BernskioldMedia\Fortnox\OAuth\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\OAuth\Storage\CacheTokenStorage;
 use BernskioldMedia\Fortnox\OAuth\Storage\DatabaseTokenStorage;
-use BernskioldMedia\Fortnox\OAuth\Storage\FileTokenStorage;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -192,12 +191,11 @@ class FortnoxOAuth
      */
     protected function resolveTokenStorage(): TokenStorage
     {
-        $driver = $this->config['token_storage'] ?? 'file';
+        $driver = $this->config['token_storage'] ?? 'database';
 
         return match ($driver) {
-            'database' => new DatabaseTokenStorage($this->config['token_table'] ?? 'fortnox_tokens'),
             'cache' => new CacheTokenStorage($this->config['token_cache_prefix'] ?? 'fortnox_token_'),
-            default => new FileTokenStorage($this->config['token_storage_path'] ?? storage_path('app/fortnox-tokens')),
+            default => new DatabaseTokenStorage($this->config['token_table'] ?? 'fortnox_tokens'),
         };
     }
 
@@ -230,4 +228,3 @@ class FortnoxOAuth
         }
     }
 }
-

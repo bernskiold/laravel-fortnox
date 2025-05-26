@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/bernskioldmedia/laravel-fortnox/Check%20&%20fix%20styling?label=code%20style)](https://github.com/bernskioldmedia/laravel-fortnox/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/bernskioldmedia/laravel-fortnox.svg?style=flat-square)](https://packagist.org/packages/bernskioldmedia/laravel-fortnox)
 
-A Laravel package to consume the Fortnox API.
+A Laravel package to consume the Fortnox API using OAuth2 authentication.
 
 ## Installation
 
@@ -21,7 +21,7 @@ You can publish the config file with:
 php artisan vendor:publish --tag="fortnox-config"
 ```
 
-If you plan to use the database storage for OAuth2 tokens, you should also publish and run the migrations:
+You should also publish and run the migrations to set up the database table for storing OAuth2 tokens:
 
 ```bash
 php artisan vendor:publish --tag="fortnox-migrations"
@@ -35,21 +35,15 @@ This is the contents of the published config file:
 ```php
 return [
     /**
-     * The access token that Fortnox needs to authenticate.
-     * You can use the built-in generation command to generate it.
+     * The client ID provided by Fortnox for your application.
+     * Required for OAuth2 authentication.
      */
-    'access_token' => env('FORTNOX_ACCESS_TOKEN', ''),
+    'client_id' => env('FORTNOX_CLIENT_ID', ''),
 
     /**
      * The client secret provided by Fortnox for your application.
      */
     'client_secret' => env('FORTNOX_CLIENT_SECRET', ''),
-
-    /**
-     * The client ID provided by Fortnox for your application.
-     * Required for OAuth2 authentication.
-     */
-    'client_id' => env('FORTNOX_CLIENT_ID', ''),
 
     /**
      * The URL to the Fortnox API.
@@ -86,21 +80,16 @@ return [
     'state' => env('FORTNOX_STATE', ''),
 
     /**
-     * Whether to use OAuth2 authentication instead of access token.
+     * The default tenant ID to use for OAuth2 authentication.
+     * This can be overridden at runtime using the forTenant() method.
      */
-    'use_oauth' => env('FORTNOX_USE_OAUTH', false),
-
-    /**
-     * The path where the OAuth2 tokens will be stored.
-     * Only used when using file storage for tokens.
-     */
-    'token_storage_path' => env('FORTNOX_TOKEN_STORAGE_PATH', storage_path('app/fortnox-tokens')),
+    'tenant_id' => env('FORTNOX_TENANT_ID', 'default'),
 
     /**
      * The storage driver to use for storing OAuth2 tokens.
-     * Options: 'file', 'database', 'cache'
+     * Options: 'database', 'cache'
      */
-    'token_storage' => env('FORTNOX_TOKEN_STORAGE', 'file'),
+    'token_storage' => env('FORTNOX_TOKEN_STORAGE', 'database'),
 
     /**
      * The database table to use for storing OAuth2 tokens.
@@ -118,38 +107,9 @@ return [
 
 ## Usage
 
-### Legacy Authentication
-
-If you're using the legacy authentication method with an access token and client secret:
-
-```php
-// Using the facade
-use BernskioldMedia\Fortnox\Facades\Fortnox;
-
-// Get all customers
-$customers = Fortnox::customers()->all();
-
-// Get a specific customer
-$customer = Fortnox::customers()->find('1');
-
-// Create a new customer
-$customer = Fortnox::customers()->create([
-    'Name' => 'Test Customer',
-    'Email' => 'test@example.com',
-]);
-
-// Update a customer
-$customer = Fortnox::customers()->update('1', [
-    'Name' => 'Updated Customer Name',
-]);
-
-// Delete a customer
-Fortnox::customers()->delete('1');
-```
-
 ### OAuth2 Authentication
 
-To use OAuth2 authentication, you need to set `use_oauth` to `true` in your config file and provide the necessary OAuth2 configuration values.
+This package uses OAuth2 authentication to connect to the Fortnox API. The implementation follows the Authorization Code Flow as described in the [Fortnox documentation](https://www.fortnox.se/developer/authorization).
 
 #### Step 1: Generate an Authorization URL
 
@@ -179,6 +139,7 @@ public function callback(Request $request)
     $expectedState = session('fortnox_oauth_state');
     
     // Use a unique identifier for the tenant (e.g., user ID, company ID)
+    // If not specified, it will use the default tenant ID from config
     $tenantId = auth()->id();
     
     try {
@@ -194,14 +155,34 @@ public function callback(Request $request)
 }
 ```
 
-#### Step 3: Using the API with OAuth2
+#### Step 3: Using the API
 
 ```php
 use BernskioldMedia\Fortnox\Facades\Fortnox;
 
-// Set the tenant ID for the current request
+// Using the default tenant ID from config
+$customers = Fortnox::customers()->all();
+
+// Or specify a different tenant ID for this request
 $tenantId = auth()->id();
 $customers = Fortnox::forTenant($tenantId)->customers()->all();
+
+// Get a specific customer
+$customer = Fortnox::customers()->find('1');
+
+// Create a new customer
+$customer = Fortnox::customers()->create([
+    'Name' => 'Test Customer',
+    'Email' => 'test@example.com',
+]);
+
+// Update a customer
+$customer = Fortnox::customers()->update('1', [
+    'Name' => 'Updated Customer Name',
+]);
+
+// Delete a customer
+Fortnox::customers()->delete('1');
 ```
 
 #### Token Management

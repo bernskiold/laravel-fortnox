@@ -7,7 +7,6 @@ use BernskioldMedia\Fortnox\OAuth\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\OAuth\FortnoxOAuth;
 use BernskioldMedia\Fortnox\OAuth\Storage\CacheTokenStorage;
 use BernskioldMedia\Fortnox\OAuth\Storage\DatabaseTokenStorage;
-use BernskioldMedia\Fortnox\OAuth\Storage\FileTokenStorage;
 use Illuminate\Support\Facades\Route;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -30,13 +29,14 @@ class FortnoxServiceProvider extends PackageServiceProvider
     public function registeringPackage()
     {
         $this->app->bind(FortnoxClient::class, function () {
-            return FortnoxClient::fromConfig(config('fortnox'));
+            $config = config('fortnox');
+            $this->protectAgainstInvalidConfiguration($config);
+            
+            return new FortnoxClient($config);
         });
 
         $this->app->bind(Fortnox::class, function () {
-            $this->protectAgainstInvalidConfiguration(config('fortnox'));
             $client = app(FortnoxClient::class);
-
             return new Fortnox($client);
         });
 
@@ -50,49 +50,36 @@ class FortnoxServiceProvider extends PackageServiceProvider
     protected function registerTokenStorage()
     {
         $config = config('fortnox');
-        $driver = $config['token_storage'] ?? 'file';
+        $driver = $config['token_storage'] ?? 'database';
 
         $this->app->bind(TokenStorage::class, function () use ($driver, $config) {
             return match ($driver) {
-                'database' => new DatabaseTokenStorage($config['token_table'] ?? 'fortnox_tokens'),
                 'cache' => new CacheTokenStorage($config['token_cache_prefix'] ?? 'fortnox_token_'),
-                default => new FileTokenStorage($config['token_storage_path'] ?? storage_path('app/fortnox-tokens')),
+                default => new DatabaseTokenStorage($config['token_table'] ?? 'fortnox_tokens'),
             };
         });
     }
 
     protected function protectAgainstInvalidConfiguration(array $config): void
     {
-        // If OAuth is enabled, we need different configuration
-        if (isset($config['use_oauth']) && $config['use_oauth']) {
-            if (empty($config['client_id'])) {
-                throw InvalidConfiguration::missingClientId();
-            }
+        if (empty($config['client_id'])) {
+            throw InvalidConfiguration::missingClientId();
+        }
 
-            if (empty($config['client_secret'])) {
-                throw InvalidConfiguration::missingClientSecret();
-            }
+        if (empty($config['client_secret'])) {
+            throw InvalidConfiguration::missingClientSecret();
+        }
 
-            if (empty($config['redirect_uri'])) {
-                throw InvalidConfiguration::missingRedirectUri();
-            }
+        if (empty($config['redirect_uri'])) {
+            throw InvalidConfiguration::missingRedirectUri();
+        }
 
-            if (empty($config['auth_url'])) {
-                throw InvalidConfiguration::missingAuthUrl();
-            }
+        if (empty($config['auth_url'])) {
+            throw InvalidConfiguration::missingAuthUrl();
+        }
 
-            if (empty($config['token_url'])) {
-                throw InvalidConfiguration::missingTokenUrl();
-            }
-        } else {
-            // Legacy authentication requires these
-            if (empty($config['access_token'])) {
-                throw InvalidConfiguration::missingAccessToken();
-            }
-
-            if (empty($config['client_secret'])) {
-                throw InvalidConfiguration::missingClientSecret();
-            }
+        if (empty($config['token_url'])) {
+            throw InvalidConfiguration::missingTokenUrl();
         }
 
         if (empty($config['base_url'])) {

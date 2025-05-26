@@ -1,23 +1,16 @@
 <?php
 
 return [
-
-    /**
-     * The access token that Fortnox needs to authenticate.
-     * You can use the built-in generation command to generate it.
-     */
-    'access_token' => env('FORTNOX_ACCESS_TOKEN', ''),
-
-    /**
-     * The client secret provided by Fortnox for your application.
-     */
-    'client_secret' => env('FORTNOX_CLIENT_SECRET', ''),
-
     /**
      * The client ID provided by Fortnox for your application.
      * Required for OAuth2 authentication.
      */
     'client_id' => env('FORTNOX_CLIENT_ID', ''),
+
+    /**
+     * The client secret provided by Fortnox for your application.
+     */
+    'client_secret' => env('FORTNOX_CLIENT_SECRET', ''),
 
     /**
      * The URL to the Fortnox API.
@@ -54,21 +47,16 @@ return [
     'state' => env('FORTNOX_STATE', ''),
 
     /**
-     * Whether to use OAuth2 authentication instead of access token.
+     * The default tenant ID to use for OAuth2 authentication.
+     * This can be overridden at runtime using the forTenant() method.
      */
-    'use_oauth' => env('FORTNOX_USE_OAUTH', false),
-
-    /**
-     * The path where the OAuth2 tokens will be stored.
-     * Only used when using file storage for tokens.
-     */
-    'token_storage_path' => env('FORTNOX_TOKEN_STORAGE_PATH', storage_path('app/fortnox-tokens')),
+    'tenant_id' => env('FORTNOX_TENANT_ID', 'default'),
 
     /**
      * The storage driver to use for storing OAuth2 tokens.
-     * Options: 'file', 'database', 'cache'
+     * Options: 'database', 'cache'
      */
-    'token_storage' => env('FORTNOX_TOKEN_STORAGE', 'file'),
+    'token_storage' => env('FORTNOX_TOKEN_STORAGE', 'database'),
 
     /**
      * The database table to use for storing OAuth2 tokens.
@@ -81,5 +69,4 @@ return [
      * Only used when token_storage is set to 'cache'.
      */
     'token_cache_prefix' => env('FORTNOX_TOKEN_CACHE_PREFIX', 'fortnox_token_'),
-
 ];

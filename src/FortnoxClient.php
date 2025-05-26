@@ -12,38 +12,17 @@ use Illuminate\Support\Facades\Http;
 class FortnoxClient
 {
     public PendingRequest $request;
-    protected ?FortnoxOAuth $oauth = null;
-    protected ?string $tenantId = null;
-    protected bool $useOAuth = false;
+    protected FortnoxOAuth $oauth;
+    protected string $tenantId;
+    protected array $config;
 
-    public function __construct(
-        private string $clientSecret,
-        private string $accessToken,
-        private string $baseUrl,
-        array $config = []
-    ) {
-        $this->useOAuth = $config['use_oauth'] ?? false;
-        
-        if ($this->useOAuth) {
-            $this->oauth = new FortnoxOAuth($config);
-            $this->tenantId = $config['tenant_id'] ?? null;
-            
-            if (empty($this->tenantId)) {
-                throw InvalidConfiguration::missingTenantId();
-            }
-        }
+    public function __construct(array $config)
+    {
+        $this->config = $config;
+        $this->oauth = app(FortnoxOAuth::class);
+        $this->tenantId = $config['tenant_id'] ?? 'default';
         
         $this->setupRequest();
-    }
-
-    public static function fromConfig(array $config): static
-    {
-        return new static(
-            $config['client_secret'], 
-            $config['access_token'], 
-            $config['base_url'],
-            $config
-        );
     }
 
     /**
@@ -56,22 +35,16 @@ class FortnoxClient
     {
         $headers = [];
 
-        if ($this->useOAuth && $this->oauth && $this->tenantId) {
-            // If we're using OAuth and we have a token, use it
-            if ($this->oauth->hasToken($this->tenantId)) {
-                $accessToken = $this->oauth->getAccessToken($this->tenantId);
-                $headers['Authorization'] = 'Bearer ' . $accessToken;
-            }
-        } else {
-            // Otherwise, use the legacy authentication method
-            $headers['Access-Token'] = $this->accessToken;
-            $headers['Client-Secret'] = $this->clientSecret;
+        // If we have a token for the current tenant, use it
+        if ($this->oauth->hasToken($this->tenantId)) {
+            $accessToken = $this->oauth->getAccessToken($this->tenantId);
+            $headers['Authorization'] = 'Bearer ' . $accessToken;
         }
 
         $this->request = Http::acceptJson()
             ->asJson()
             ->withHeaders($headers)
-            ->baseUrl($this->baseUrl);
+            ->baseUrl($this->config['base_url']);
     }
 
     /**
@@ -90,11 +63,21 @@ class FortnoxClient
     }
 
     /**
+     * Get the current tenant ID.
+     *
+     * @return string
+     */
+    public function getTenantId(): string
+    {
+        return $this->tenantId;
+    }
+
+    /**
      * Get the OAuth manager.
      *
-     * @return FortnoxOAuth|null
+     * @return FortnoxOAuth
      */
-    public function oauth(): ?FortnoxOAuth
+    public function oauth(): FortnoxOAuth
     {
         return $this->oauth;
     }
@@ -252,10 +235,7 @@ class FortnoxClient
      */
     protected function shouldRefreshToken(RequestException $exception): bool
     {
-        return $this->useOAuth && 
-               $this->oauth && 
-               $this->tenantId && 
-               $exception->response->status() === 401;
+        return $exception->response->status() === 401;
     }
 
     /**
@@ -266,10 +246,6 @@ class FortnoxClient
      */
     protected function refreshToken(): void
     {
-        if (!$this->useOAuth || !$this->oauth || !$this->tenantId) {
-            return;
-        }
-
         $this->oauth->refreshToken($this->tenantId);
         $this->setupRequest();
     }
