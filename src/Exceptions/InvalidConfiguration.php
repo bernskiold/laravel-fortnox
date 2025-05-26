@@ -6,7 +6,6 @@ use Exception;
 
 class InvalidConfiguration extends Exception
 {
-
     public static function missingAccessToken(): self
     {
         return new static('Missing access token. To use the Fortnox API you need a valid access token.');
@@ -46,5 +45,4 @@ class InvalidConfiguration extends Exception
     {
         return new static('Missing tenant ID. When using OAuth2 authentication, you must provide a tenant ID.');
     }
-
 }

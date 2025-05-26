@@ -7,4 +7,3 @@ use Exception;
 class InvalidStateException extends Exception
 {
 }
-

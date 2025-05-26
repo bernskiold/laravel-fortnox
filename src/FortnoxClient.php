@@ -23,24 +23,24 @@ class FortnoxClient
         array $config = []
     ) {
         $this->useOAuth = $config['use_oauth'] ?? false;
-        
+
         if ($this->useOAuth) {
             $this->oauth = new FortnoxOAuth($config);
             $this->tenantId = $config['tenant_id'] ?? null;
-            
+
             if (empty($this->tenantId)) {
                 throw InvalidConfiguration::missingTenantId();
             }
         }
-        
+
         $this->setupRequest();
     }
 
     public static function fromConfig(array $config): static
     {
         return new static(
-            $config['client_secret'], 
-            $config['access_token'], 
+            $config['client_secret'],
+            $config['access_token'],
             $config['base_url'],
             $config
         );
@@ -85,7 +85,7 @@ class FortnoxClient
     {
         $this->tenantId = $tenantId;
         $this->setupRequest();
-        
+
         return $this;
     }
 
@@ -118,12 +118,13 @@ class FortnoxClient
         } catch (RequestException $e) {
             if ($this->shouldRefreshToken($e)) {
                 $this->refreshToken();
+
                 return $this->request
                     ->get($endpoint, $query)
                     ->throw()
                     ->object();
             }
-            
+
             throw $e;
         }
     }
@@ -147,12 +148,13 @@ class FortnoxClient
         } catch (RequestException $e) {
             if ($this->shouldRefreshToken($e)) {
                 $this->refreshToken();
+
                 return $this->request
                     ->get($endpoint, $query)
                     ->throw()
                     ->body();
             }
-            
+
             throw $e;
         }
     }
@@ -176,12 +178,13 @@ class FortnoxClient
         } catch (RequestException $e) {
             if ($this->shouldRefreshToken($e)) {
                 $this->refreshToken();
+
                 return $this->request
                     ->post($endpoint, $data)
                     ->throw()
                     ->object();
             }
-            
+
             throw $e;
         }
     }
@@ -205,12 +208,13 @@ class FortnoxClient
         } catch (RequestException $e) {
             if ($this->shouldRefreshToken($e)) {
                 $this->refreshToken();
+
                 return $this->request
                     ->put($endpoint, $data)
                     ->throw()
                     ->object();
             }
-            
+
             throw $e;
         }
     }
@@ -234,12 +238,13 @@ class FortnoxClient
         } catch (RequestException $e) {
             if ($this->shouldRefreshToken($e)) {
                 $this->refreshToken();
+
                 return $this->request
                     ->delete($endpoint, $data)
                     ->throw()
                     ->ok();
             }
-            
+
             throw $e;
         }
     }
@@ -252,9 +257,9 @@ class FortnoxClient
      */
     protected function shouldRefreshToken(RequestException $exception): bool
     {
-        return $this->useOAuth && 
-               $this->oauth && 
-               $this->tenantId && 
+        return $this->useOAuth &&
+               $this->oauth &&
+               $this->tenantId &&
                $exception->response->status() === 401;
     }
 
@@ -266,7 +271,7 @@ class FortnoxClient
      */
     protected function refreshToken(): void
     {
-        if (!$this->useOAuth || !$this->oauth || !$this->tenantId) {
+        if (! $this->useOAuth || ! $this->oauth || ! $this->tenantId) {
             return;
         }
 

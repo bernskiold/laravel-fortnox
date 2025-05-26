@@ -37,4 +37,3 @@ interface TokenStorage
      */
     public function hasToken(string $tenantId): bool;
 }
-

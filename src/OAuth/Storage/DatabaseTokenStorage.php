@@ -28,8 +28,8 @@ class DatabaseTokenStorage implements TokenStorage
             [
                 'access_token' => $tokenData['access_token'] ?? null,
                 'refresh_token' => $tokenData['refresh_token'] ?? null,
-                'expires_at' => isset($tokenData['expires_in']) 
-                    ? now()->addSeconds($tokenData['expires_in']) 
+                'expires_at' => isset($tokenData['expires_in'])
+                    ? now()->addSeconds($tokenData['expires_in'])
                     : null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -83,4 +83,3 @@ class DatabaseTokenStorage implements TokenStorage
             ->exists();
     }
 }
-

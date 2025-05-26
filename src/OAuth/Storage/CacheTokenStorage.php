@@ -24,7 +24,7 @@ class CacheTokenStorage implements TokenStorage
     public function storeToken(string $tenantId, array $tokenData): void
     {
         $expiresIn = $tokenData['expires_in'] ?? 3600; // Default to 1 hour
-        
+
         Cache::put(
             $this->getCacheKey($tenantId),
             $tokenData,
@@ -76,4 +76,3 @@ class CacheTokenStorage implements TokenStorage
         return $this->cachePrefix . $tenantId;
     }
 }
-

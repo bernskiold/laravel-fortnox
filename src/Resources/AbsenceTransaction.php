@@ -30,6 +30,7 @@ class AbsenceTransaction extends BaseResource
     {
         $formattedDate = $date->format('Y-m-d');
         $raw = $this->client->get($this->getEndpoint()."/$employeeId/$formattedDate/$code");
+
         return new ListResponse($raw, $this->getPluralKey());
     }
 

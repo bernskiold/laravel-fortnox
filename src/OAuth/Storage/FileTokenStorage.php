@@ -49,6 +49,7 @@ class FileTokenStorage implements TokenStorage
         }
 
         $content = $this->filesystem->get($filePath);
+
         return json_decode($content, true);
     }
 
@@ -89,4 +90,3 @@ class FileTokenStorage implements TokenStorage
         return $this->storagePath . '/' . $tenantId . '.json';
     }
 }
-

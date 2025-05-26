@@ -21,11 +21,9 @@ use BernskioldMedia\Fortnox\Resources\Voucher;
 
 class Fortnox
 {
-
     public function __construct(
         protected FortnoxClient $client
-    )
-    {
+    ) {
     }
 
     /**
@@ -38,7 +36,7 @@ class Fortnox
     public function forTenant(string $tenantId): self
     {
         $this->client->forTenant($tenantId);
-        
+
         return $this;
     }
 
@@ -174,5 +172,4 @@ class Fortnox
     {
         return new Voucher($this->client);
     }
-
 }
