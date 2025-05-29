@@ -22,4 +22,9 @@ class InvalidConfiguration extends Exception
         return new static('Missing Fornox Base URL. To use the Fortnox API you need a non-empty base URL set.');
     }
 
+    public static function invalidStorageConfiguration(string $message): self
+    {
+        return new static("Invalid Storage Configuration: {$message}");
+    }
+
 }

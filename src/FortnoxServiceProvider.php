@@ -2,6 +2,7 @@
 
 namespace BernskioldMedia\Fortnox;
 
+use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -18,7 +19,16 @@ class FortnoxServiceProvider extends PackageServiceProvider
     public function registeringPackage()
     {
         $this->app->bind(FortnoxClient::class, function () {
-            return FortnoxClient::fromConfig(config('fortnox'));
+            /**
+             * @var TokenStorage $tokenStorage
+             */
+            $tokenStorage = app(config('fortnox.storage_provider'));
+
+            return (new FortnoxClient(
+                clientSecret: config('fortnox.client_secret'),
+                accessToken: $tokenStorage->getToken(),
+                baseUrl: config('fortnox.base_url'),
+            ));
         });
 
         $this->app->bind(Fortnox::class, function () {
@@ -33,10 +43,6 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
     protected function protectAgainstInvalidConfiguration(array $config): void
     {
-        if (empty($config['access_token'])) {
-            throw InvalidConfiguration::missingAccessToken();
-        }
-
         if (empty($config['client_secret'])) {
             throw InvalidConfiguration::missingClientSecret();
         }

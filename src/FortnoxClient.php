@@ -23,11 +23,6 @@ class FortnoxClient
             ->baseUrl($this->baseUrl);
     }
 
-    public static function fromConfig(array $config): static
-    {
-        return new static($config['client_secret'], $config['access_token'], $config['base_url']);
-    }
-
     public function get(string $endpoint, array $query = []): object
     {
         return $this->request
