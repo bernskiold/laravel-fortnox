@@ -6,6 +6,7 @@ use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use function config;
 
 class FortnoxServiceProvider extends PackageServiceProvider
 {
@@ -19,9 +20,10 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
     public function registeringPackage()
     {
-        $this->protectAgainstInvalidConfiguration(config('fortnox'));
 
         $this->app->bind(FortnoxClient::class, function () {
+            $this->protectAgainstInvalidConfiguration(config('fortnox'));
+
             /**
              * @var TokenStorage $tokenStorage
              */
@@ -35,6 +37,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
         });
 
         $this->app->bind(Fortnox::class, function () {
+            $this->protectAgainstInvalidConfiguration(config('fortnox'));
             $client = app(FortnoxClient::class);
 
             return new Fortnox($client);
