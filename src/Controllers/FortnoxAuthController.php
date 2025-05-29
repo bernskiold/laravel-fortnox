@@ -25,13 +25,15 @@ class FortnoxAuthController
              */
             $fortnoxUser = Socialite::driver('fortnox')->user();
         } catch (\Exception $e) {
-            return redirect()->to(config('fortnox.oauth_redirect_url', '/'))
+            return redirect()->to(config('fortnox.routes.error_redirect_url', '/'))
+                ->with('type', 'fortnox')
                 ->with('status', 'error')
                 ->with('message', 'Failed to authenticate with Fortnox: ' . $e->getMessage());
         }
 
         if (!$fortnoxUser->token) {
-            return redirect()->to(config('fortnox.oauth_redirect_url', '/'))
+            return redirect()->to(config('fortnox.routes.error_redirect_url', '/'))
+                ->with('type', 'fortnox')
                 ->with('status', 'error')
                 ->with('message', 'No access token received from Fortnox.');
         }
@@ -43,6 +45,11 @@ class FortnoxAuthController
          */
         $storageProvider = app(config('fortnox.storage_provider'));
         $storageProvider->storeToken($fortnoxUser->refreshToken ?? null);
+
+        return redirect()->to(config('fortnox.routes.success_redirect_route', '/'))
+            ->with('type', 'fortnox')
+            ->with('status', 'success')
+            ->with('message', 'Successfully authenticated with Fortnox.');
     }
 
 }

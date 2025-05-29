@@ -13,11 +13,14 @@ class FortnoxServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('laravel-fortnox')
+            ->hasRoute('web')
             ->hasConfigFile();
     }
 
     public function registeringPackage()
     {
+        $this->protectAgainstInvalidConfiguration(config('fortnox'));
+
         $this->app->bind(FortnoxClient::class, function () {
             /**
              * @var TokenStorage $tokenStorage
@@ -32,7 +35,6 @@ class FortnoxServiceProvider extends PackageServiceProvider
         });
 
         $this->app->bind(Fortnox::class, function () {
-            $this->protectAgainstInvalidConfiguration(config('fortnox'));
             $client = app(FortnoxClient::class);
 
             return new Fortnox($client);
@@ -43,6 +45,14 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
     protected function protectAgainstInvalidConfiguration(array $config): void
     {
+        if (empty($config['storage_provider'])) {
+            throw InvalidConfiguration::missingStorageProvider();
+        }
+
+        if (empty($config['client_id'])) {
+            throw InvalidConfiguration::missingClientId();
+        }
+
         if (empty($config['client_secret'])) {
             throw InvalidConfiguration::missingClientSecret();
         }

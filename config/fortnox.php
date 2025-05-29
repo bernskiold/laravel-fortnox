@@ -1,6 +1,6 @@
 <?php
 
-use BernskioldMedia\Fortnox\Storage\CacheTokenStorage;
+use BernskioldMedia\Fortnox\TokenStorage\CacheTokenStorage;
 
 return [
 
@@ -26,28 +26,52 @@ return [
     'oauth_base_url' => env('FORTNOX_OAUTH_BASE_URL', 'https://apps.fortnox.se/oauth-v1'),
 
     /**
-     * The redirect URL to use after a successful authentication.
-     * This should be the URL where you want to redirect the user after they have authenticated.
+     * Service accounts are used when the actions performed by your application
+     * should not be tied to a specific user, but rather to the application itself.
+     *
+     * If you want each user to authenticate with Fortnox, set this to false.
      */
-    'success_redirect_url' => env('FORTNOX_SUCCESS_REDIRECT_URL', '/'),
+    'use_service_account' => true,
 
     /**
-     * The redirect URL to use after an error during authentication.
-     * This should be the URL where you want to redirect the user if there is an error during authentication.
+     * The scopes to request from Fortnox.
      *
-     * The query string will contain an an `error` parameter with the error message.
+     * You can specify the scopes your application needs to access.
+     * @see https://www.fortnox.se/developer/guides-and-good-to-know/scopes
      */
-    'error_redirect_url' => env('FORTNOX_ERROR_REDIRECT_URL', '/'),
-
-    /**
-     * The redirect URL for the OAuth flow.
-     * This should match the redirect URL configured in your Fortnox application settings.
-     *
-     * Example: https://yourapp.com/auth/fortnox/callback
-     */
-    'oauth_redirect_url' => '',
-
     'scopes' => [],
+
+    'routes' => [
+
+        'oauth' => [
+            /**
+             * The route to redirect to when the user wants to authenticate with Fortnox.
+             * This should point to the controller that handles the OAuth flow.
+             */
+            'redirect' => '/oauth/fortnox',
+
+            /**
+             * The route to redirect to after the user has authenticated with Fortnox.
+             * This should point to the controller that handles the OAuth callback.
+             */
+            'callback' => '/oauth/fortnox/callback',
+        ],
+
+        /**
+         * The redirect URL to use after a successful authentication.
+         * This should be the URL where you want to redirect the user after they have authenticated.
+         */
+        'success_redirect_route' => '/',
+
+        /**
+         * The redirect URL to use after an error during authentication.
+         * This should be the URL where you want to redirect the user if there is an error during authentication.
+         *
+         * The query string will contain an an `error` parameter with the error message.
+         */
+        'error_redirect_url' => '/',
+
+    ],
 
     /**
      * The storage provider to use for storing tokens.

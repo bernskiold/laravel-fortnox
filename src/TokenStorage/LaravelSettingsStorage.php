@@ -1,6 +1,6 @@
 <?php
 
-namespace BernskioldMedia\Fortnox\Storage;
+namespace BernskioldMedia\Fortnox\TokenStorage;
 
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
