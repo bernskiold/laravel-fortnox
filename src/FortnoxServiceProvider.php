@@ -57,8 +57,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
             $tokenStorage = app(config('fortnox.storage_provider'));
 
             return (new FortnoxClient(
-                clientSecret: config('fortnox.client_secret'),
-                accessToken: $tokenStorage->getToken(),
+                accessToken: $tokenStorage->getToken()->token,
                 baseUrl: config('fortnox.base_url'),
             ));
         });
