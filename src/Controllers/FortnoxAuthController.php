@@ -5,6 +5,7 @@ namespace BernskioldMedia\Fortnox\Controllers;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\Token;
 use Laravel\Socialite\Two\User;
 use function app;
 use function config;
@@ -27,7 +28,7 @@ class FortnoxAuthController
             'access_type' => 'offline',
         ];
 
-        if(config('fortnox.use_service_account', false)) {
+        if (config('fortnox.use_service_account', false)) {
             $parameters['account_type'] = 'service';
         }
 
@@ -50,21 +51,14 @@ class FortnoxAuthController
 
         try {
             /**
-             * @var User $fortnoxUser
+             * @var Token $token
              */
-            $fortnoxUser = Socialite::driver('fortnox')->user();
+            $token = Socialite::driver('fortnox')->token();
         } catch (\Exception $e) {
             return redirect()->to($requestUrl)
                 ->with('type', 'fortnox')
                 ->with('status', 'error')
                 ->with('message', 'Failed to authenticate with Fortnox: ' . $e->getMessage());
-        }
-
-        if (!$fortnoxUser->token) {
-            return redirect()->to($requestUrl)
-                ->with('type', 'fortnox')
-                ->with('status', 'error')
-                ->with('message', 'No access token received from Fortnox.');
         }
 
         /**
@@ -73,7 +67,7 @@ class FortnoxAuthController
          * @var TokenStorage $storageProvider
          */
         $storageProvider = app(config('fortnox.storage_provider'));
-        $storageProvider->storeToken($fortnoxUser->refreshToken ?? null);
+        $storageProvider->storeToken($token);
 
         return redirect()->to($requestUrl)
             ->with('type', 'fortnox')

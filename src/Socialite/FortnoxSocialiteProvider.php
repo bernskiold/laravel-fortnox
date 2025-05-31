@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\InvalidStateException;
 use Laravel\Socialite\Two\ProviderInterface;
+use Laravel\Socialite\Two\Token;
 use Laravel\Socialite\Two\User;
 use function base64_encode;
 use function config;
@@ -39,6 +40,22 @@ class FortnoxSocialiteProvider extends AbstractProvider implements ProviderInter
     protected function getUserByToken($token)
     {
         return [];
+    }
+
+    public function token(): ?Token
+    {
+        if ($this->hasInvalidState()) {
+            throw new InvalidStateException();
+        }
+
+        $response = $this->getAccessTokenResponse($this->getCode());
+
+        return new Token(
+            Arr::get($response, 'token'),
+            Arr::get($response, 'refresh_token'),
+            Arr::get($response, 'expires_in'),
+            explode(',', Arr::get($response, 'scope', '')),
+        );
     }
 
     public function user()
