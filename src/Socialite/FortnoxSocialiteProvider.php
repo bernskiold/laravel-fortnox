@@ -54,7 +54,7 @@ class FortnoxSocialiteProvider extends AbstractProvider implements ProviderInter
             Arr::get($response, 'access_token'),
             Arr::get($response, 'refresh_token'),
             Arr::get($response, 'expires_in'),
-            explode(' ', Arr::get($response, 'scope', '')),
+            explode($this->scopeSeparator, Arr::get($response, 'scope', '')),
         );
     }
 
