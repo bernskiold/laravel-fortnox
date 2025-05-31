@@ -2,7 +2,6 @@
 
 namespace BernskioldMedia\Fortnox;
 
-use App\Socialite\LinearSocialiteProvider;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
@@ -47,17 +46,6 @@ class FortnoxServiceProvider extends PackageServiceProvider
         });
 
         $this->app->alias(Fortnox::class, 'laravel-fortnox');
-
-        $socialite = $this->app->make(Factory::class);
-        $socialite->extend('linear', function () use ($socialite) {
-            $this->protectAgainstInvalidConfiguration(config('fortnox'));
-
-            return $socialite->buildProvider(FortnoxSocialiteProvider::class, [
-                'clientId' => config('fortnox.client_id'),
-                'clientSecret' => config('fortnox.client_secret'),
-                'redirectUrl' => config('fortnox.redirect_url'),
-            ]);
-        });
     }
 
     protected function protectAgainstInvalidConfiguration(array $config): void
