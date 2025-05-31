@@ -12,7 +12,7 @@ class CacheTokenStorage implements TokenStorage
 
     protected string $cacheKey;
 
-    protected string $driver;
+    protected ?string $driver;
 
     public function __construct()
     {
