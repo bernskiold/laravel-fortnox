@@ -97,13 +97,6 @@ return [
              * This should be unique to avoid conflicts with other cached items.
              */
             'prefix' => 'fortnox.token',
-
-            /**
-             * The default expiration time for tokens in seconds.
-             *
-             * After this time the user will have to re-authenticate.
-             */
-            'expires_in' => 60 * 60 * 24, // 24 hours
         ],
 
 //        'laravel_settings' => [
