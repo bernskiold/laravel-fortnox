@@ -5,10 +5,13 @@ namespace BernskioldMedia\Fortnox;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
+use Illuminate\Support\Arr;
 use Laravel\Socialite\Contracts\Factory;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use function config;
+use function url;
 
 class FortnoxServiceProvider extends PackageServiceProvider
 {
@@ -17,20 +20,25 @@ class FortnoxServiceProvider extends PackageServiceProvider
         $package
             ->name('laravel-fortnox')
             ->hasRoute('web')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->hasInstallCommand(function (InstallCommand $command) {
+                $command
+                    ->publishConfigFile()
+                    ->askToStarRepoOnGitHub('bernskioldmedia/laravel-fortnox');
+            });
     }
 
     public function bootingPackage()
     {
         $socialite = $this->app->make(Factory::class);
         $socialite->extend('fortnox', function ($app) use ($socialite) {
-            $config = $app['config']['fortnox'];
+            $config = Arr::get($app, 'config.fortnox');
             $this->protectAgainstInvalidConfiguration($config);
 
             return $socialite->buildProvider(FortnoxSocialiteProvider::class, [
-                'clientId' => $config['client_id'],
-                'clientSecret' => $config['client_secret'],
-                'redirectUrl' => url($config['oauth.callback']),
+                'client_id' => Arr::get($config, 'client_id'),
+                'client_secret' => Arr::get($config, 'client_secret'),
+                'redirect' => url(Arr::get($config, 'routes.oauth.callback')),
             ]);
         });
     }

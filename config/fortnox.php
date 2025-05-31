@@ -60,16 +60,10 @@ return [
         /**
          * The redirect URL to use after a successful authentication.
          * This should be the URL where you want to redirect the user after they have authenticated.
-         */
-        'success_redirect_route' => '/',
-
-        /**
-         * The redirect URL to use after an error during authentication.
-         * This should be the URL where you want to redirect the user if there is an error during authentication.
          *
-         * The query string will contain an an `error` parameter with the error message.
+         * Set this to "null" if you want to redirect back to the previous page.
          */
-        'error_redirect_url' => '/',
+        'success_redirect_route' => null,
 
     ],
 
