@@ -20,6 +20,21 @@ class FortnoxServiceProvider extends PackageServiceProvider
             ->hasConfigFile();
     }
 
+    public function bootingPackage()
+    {
+        $socialite = $this->app->make(Factory::class);
+        $socialite->extend('fortnox', function ($app) use ($socialite) {
+            $config = $app['config']['fortnox'];
+            $this->protectAgainstInvalidConfiguration($config);
+
+            return $socialite->buildProvider(FortnoxSocialiteProvider::class, [
+                'clientId' => $config['client_id'],
+                'clientSecret' => $config['client_secret'],
+                'redirectUrl' => url($config['oauth.callback']),
+            ]);
+        });
+    }
+
     public function registeringPackage()
     {
 
