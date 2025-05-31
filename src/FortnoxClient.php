@@ -10,22 +10,13 @@ class FortnoxClient
     public PendingRequest $request;
 
     public function __construct(
-        private string $clientSecret,
         private string $accessToken,
         private string $baseUrl
     ) {
         $this->request = Http::acceptJson()
             ->asJson()
-            ->withHeaders([
-                'Access-Token' => $this->accessToken,
-                'Client-Secret' => $this->clientSecret,
-            ])
+            ->withToken($this->accessToken)
             ->baseUrl($this->baseUrl);
-    }
-
-    public static function fromConfig(array $config): static
-    {
-        return new static($config['client_secret'], $config['access_token'], $config['base_url']);
     }
 
     public function get(string $endpoint, array $query = []): object

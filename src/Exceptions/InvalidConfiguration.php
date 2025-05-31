@@ -7,9 +7,9 @@ use Exception;
 class InvalidConfiguration extends Exception
 {
 
-    public static function missingAccessToken(): self
+    public static function missingClientId(): self
     {
-        return new static('Missing access token. To use the Fortnox API you need a valid access token.');
+        return new static('Missing client ID. To use the Fortnox API you need to set a valid client ID.');
     }
 
     public static function missingClientSecret(): self
@@ -20,6 +20,16 @@ class InvalidConfiguration extends Exception
     public static function missingBaseUrl(): self
     {
         return new static('Missing Fornox Base URL. To use the Fortnox API you need a non-empty base URL set.');
+    }
+
+    public static function missingStorageProvider(): self
+    {
+        return new static('You need to have a storage provider for the access token configured.');
+    }
+
+    public static function invalidStorageConfiguration(string $message): self
+    {
+        return new static("Invalid Storage Configuration: {$message}");
     }
 
 }
