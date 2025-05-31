@@ -75,7 +75,7 @@ class FortnoxSocialiteProvider extends AbstractProvider implements ProviderInter
         ));
 
         $scope = Arr::get($response, 'scope', '');
-        $scopes = explode(',', $scope);
+        $scopes = explode($this->scopeSeparator, $scope);
 
         return $this->user->setToken($token)
             ->setRefreshToken(Arr::get($response, 'refresh_token'))
