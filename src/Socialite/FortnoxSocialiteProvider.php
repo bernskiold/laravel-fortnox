@@ -2,14 +2,21 @@
 
 namespace BernskioldMedia\Fortnox\Socialite;
 
+use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\InvalidStateException;
 use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\User;
+use function base64_encode;
+use function config;
+use function explode;
+use function json_decode;
 
 class FortnoxSocialiteProvider extends AbstractProvider implements ProviderInterface
 {
+
+    protected $scopeSeparator = ' ';
 
     protected function getAuthUrl($state)
     {
@@ -62,5 +69,32 @@ class FortnoxSocialiteProvider extends AbstractProvider implements ProviderInter
     protected function mapUserToObject(array $user)
     {
         return (new User())->setRaw($user);
+    }
+
+    protected function getTokenHeaders($code)
+    {
+        return [
+            'Content-type' => 'application/x-www-form-urlencoded',
+            'Accept' => 'application/json',
+            'Authorization' => $this->getAuthorizationHeader(),
+        ];
+    }
+
+    protected function getAuthorizationHeader(): string
+    {
+        return 'Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret);
+    }
+
+    protected function getRefreshTokenResponse($refreshToken)
+    {
+        return json_decode($this->getHttpClient()->post($this->getTokenUrl(), [
+            RequestOptions::HEADERS => $this->getTokenHeaders(null),
+            RequestOptions::FORM_PARAMS => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+            ],
+        ])->getBody(), true);
     }
 }

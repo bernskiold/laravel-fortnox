@@ -6,31 +6,46 @@ use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User;
+use function app;
+use function config;
+use function dd;
+use function explode;
 use function hash_equals;
+use function is_null;
+use function redirect;
+use function str;
+use function url;
 
 class FortnoxAuthController
 {
 
     public function toFortnox(Request $request)
     {
-        $request->session()->put('fortnox.oauth_state', str()->random(40));
+        $request->session()->put('fortnox.oauth.request_url', url()->previous());
+
+        $parameters = [
+            'access_type' => 'offline',
+        ];
+
+        if(config('fortnox.use_service_account', false)) {
+            $parameters['account_type'] = 'service';
+        }
 
         return Socialite::driver('fortnox')
-            ->with(['state' => session('fortnox.oauth_state')])
-            ->scopes(config('fortnox.scopes', []))
+            ->with($parameters)
+            ->scopes(explode(',', config('fortnox.scopes', '')))
             ->redirect();
     }
 
     public function handleCallback(Request $request)
     {
-        $receivedState = $request->input('state');
-        $expectedState = $request->session()->pull('fortnox.oauth_state');
+        $requestUrl = $request->session()->pull('fortnox.oauth.request_url');
 
-        if (!$receivedState || !$expectedState || !hash_equals($receivedState, $expectedState)) {
-            return redirect()->back()
+        if ($request->has('error')) {
+            return redirect()->to($requestUrl)
                 ->with('type', 'fortnox')
                 ->with('status', 'error')
-                ->with('message', 'Invalid state parameter received from Fortnox.');
+                ->with('message', $request->input('error_description', 'An error occurred during the Fortnox authentication process.'));
         }
 
         try {
@@ -39,14 +54,14 @@ class FortnoxAuthController
              */
             $fortnoxUser = Socialite::driver('fortnox')->user();
         } catch (\Exception $e) {
-            return redirect()->back()
+            return redirect()->to($requestUrl)
                 ->with('type', 'fortnox')
                 ->with('status', 'error')
                 ->with('message', 'Failed to authenticate with Fortnox: ' . $e->getMessage());
         }
 
         if (!$fortnoxUser->token) {
-            return redirect()->back()
+            return redirect()->to($requestUrl)
                 ->with('type', 'fortnox')
                 ->with('status', 'error')
                 ->with('message', 'No access token received from Fortnox.');
@@ -60,16 +75,7 @@ class FortnoxAuthController
         $storageProvider = app(config('fortnox.storage_provider'));
         $storageProvider->storeToken($fortnoxUser->refreshToken ?? null);
 
-        $redirectUrl = config('fortnox.routes.success_redirect_route');
-
-        if (is_null($redirectUrl)) {
-            return redirect()->back()
-                ->with('type', 'fortnox')
-                ->with('status', 'success')
-                ->with('message', 'Successfully authenticated with Fortnox.');
-        }
-
-        return redirect()->to($redirectUrl)
+        return redirect()->to($requestUrl)
             ->with('type', 'fortnox')
             ->with('status', 'success')
             ->with('message', 'Successfully authenticated with Fortnox.');

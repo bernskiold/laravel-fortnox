@@ -3,55 +3,59 @@
 namespace BernskioldMedia\Fortnox\TokenStorage;
 
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
+use BernskioldMedia\Fortnox\Data\StoredToken;
 use Illuminate\Support\Facades\Cache;
+use Laravel\Socialite\Two\Token;
 
 class CacheTokenStorage implements TokenStorage
 {
 
     protected string $cacheKey;
 
-    protected int $expiresIn;
+    protected string $driver;
 
     public function __construct()
     {
         $this->cacheKey = config('fortnox.provider_configuration.cache.prefix', 'fortnox.token');
-        $this->expiresIn = config('fortnox.provider_configuration.cache.expires_in', 60 * 60 * 24); // Default to 24 hours
+        $this->driver = config('fortnox.provider_configuration.cache.driver', null);
     }
 
     /**
-     * Store the token data for a specific tenant.
+     * Store the token data.
      */
-    public function storeToken(string $token): void
+    public function storeToken(Token $token): void
     {
-        Cache::driver(config('fortnox.provider_configuration.cache.driver', null))
-            ->put(
-                $this->cacheKey,
-                $token,
-                now()->addSeconds($this->expiresIn)
-            );
+        $storedToken = StoredToken::fromSocialiteToken($token);
+        Cache::driver($this->driver)->put($this->cacheKey, $storedToken->toArray(), now()->addSeconds($token->expiresIn));
     }
 
     /**
-     * Get the token data for a specific tenant.
+     * Get the token data.
      */
-    public function getToken(): ?string
+    public function getToken(): ?StoredToken
     {
-        return Cache::driver(config('fortnox.provider_configuration.cache.driver', null))->get($this->cacheKey);
+        $tokenData = Cache::driver($this->driver)->get($this->cacheKey);
+
+        if(!$tokenData) {
+            return null;
+        }
+
+        return StoredToken::fromArray($tokenData);
     }
 
     /**
-     * Delete the token data for a specific tenant.
+     * Delete the token data.
      */
     public function deleteToken(): void
     {
-        Cache::driver(config('fortnox.provider_configuration.cache.driver', null))->forget($this->cacheKey);
+        Cache::driver($this->driver)->forget($this->cacheKey);
     }
 
     /**
-     * Check if a token exists for a specific tenant.
+     * Check if a token exists.
      */
     public function hasToken(): bool
     {
-        return Cache::driver(config('fortnox.provider_configuration.cache.driver', null))->has($this->cacheKey);
+        return Cache::driver($this->driver)->has($this->cacheKey);
     }
 }

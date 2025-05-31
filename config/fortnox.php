@@ -39,9 +39,14 @@ return [
      * You can specify the scopes your application needs to access.
      * @see https://www.fortnox.se/developer/guides-and-good-to-know/scopes
      */
-    'scopes' => [],
+    'scopes' => env('FORTNOX_SCOPES', ''),
 
     'routes' => [
+
+        /**
+         * Middlewares for the Fortnox Oauth routes.
+         */
+        'middleware' => ['web'],
 
         'oauth' => [
             /**
@@ -56,15 +61,6 @@ return [
              */
             'callback' => '/oauth/fortnox/callback',
         ],
-
-        /**
-         * The redirect URL to use after a successful authentication.
-         * This should be the URL where you want to redirect the user after they have authenticated.
-         *
-         * Set this to "null" if you want to redirect back to the previous page.
-         */
-        'success_redirect_route' => null,
-
     ],
 
     /**

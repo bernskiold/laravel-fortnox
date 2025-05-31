@@ -3,8 +3,12 @@
 namespace BernskioldMedia\Fortnox\TokenStorage;
 
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
+use BernskioldMedia\Fortnox\Data\StoredToken;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use Illuminate\Support\Facades\Cache;
+use Laravel\Socialite\Two\Token;
+use function serialize;
+use function unserialize;
 
 class LaravelSettingsStorage implements TokenStorage
 {
@@ -35,27 +39,33 @@ class LaravelSettingsStorage implements TokenStorage
     }
 
     /**
-     * Store the token data for a specific tenant.
+     * Store the token data.
      */
-    public function storeToken(string $token): void
+    public function storeToken(Token $token): void
     {
+        $storedToken = StoredToken::fromSocialiteToken($token);
+
         $settings = app($this->settingsClass);
-        $settings->{$this->settingName} = $token;
+        $settings->{$this->settingName} = $storedToken->serialize();
         $settings->save();
     }
 
     /**
-     * Get the token data for a specific tenant.
+     * Get the token data.
      */
-    public function getToken(): ?string
+    public function getToken(): ?StoredToken
     {
         $settings = app($this->settingsClass);
 
-        return $settings->{$this->settingName} ?? null;
+        if (empty($settings->{$this->settingName})) {
+            return null;
+        }
+
+        return StoredToken::fromSerialized($settings->{$this->settingName});
     }
 
     /**
-     * Delete the token data for a specific tenant.
+     * Delete the token data.
      */
     public function deleteToken(): void
     {
@@ -65,7 +75,7 @@ class LaravelSettingsStorage implements TokenStorage
     }
 
     /**
-     * Check if a token exists for a specific tenant.
+     * Check if a token exists.
      */
     public function hasToken(): bool
     {
