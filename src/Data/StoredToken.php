@@ -74,7 +74,7 @@ class StoredToken implements Arrayable, Serializable
         return new self(
             token: $token->token,
             refreshToken: $token->refreshToken,
-            expiresAt: Carbon::createFromTimestamp(now()->addSeconds($token->expiresIn))
+            expiresAt: Carbon::now()->addSeconds($token->expiresIn)
         );
     }
 
