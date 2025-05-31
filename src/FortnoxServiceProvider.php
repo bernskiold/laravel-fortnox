@@ -2,6 +2,7 @@
 
 namespace BernskioldMedia\Fortnox;
 
+use BernskioldMedia\Fortnox\Commands\RefreshFortnoxAccessToken;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
@@ -21,6 +22,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
             ->name('laravel-fortnox')
             ->hasRoute('web')
             ->hasConfigFile()
+            ->hasCommand(RefreshFortnoxAccessToken::class)
             ->hasInstallCommand(function (InstallCommand $command) {
                 $command
                     ->publishConfigFile()
