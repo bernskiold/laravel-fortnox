@@ -59,9 +59,17 @@ class FortnoxServiceProvider extends PackageServiceProvider
              * @var TokenStorage $tokenStorage
              */
             $tokenStorage = app(config('fortnox.storage_provider'));
+            $storedToken = $tokenStorage->getToken();
+
+            // Auto-refresh token if expired or expiring soon
+            if ($storedToken && now()->addMinutes(5)->greaterThan($storedToken->expiresAt)) {
+                $newToken = \Laravel\Socialite\Facades\Socialite::driver('fortnox')->refreshToken($storedToken->refreshToken);
+                $tokenStorage->storeToken($newToken);
+                $storedToken = $tokenStorage->getToken();
+            }
 
             return (new FortnoxClient(
-                accessToken: $tokenStorage->getToken()->token,
+                accessToken: $storedToken->token,
                 baseUrl: config('fortnox.base_url'),
             ));
         });

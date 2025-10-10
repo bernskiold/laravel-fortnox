@@ -26,7 +26,7 @@ class CacheTokenStorage implements TokenStorage
     public function storeToken(Token $token): void
     {
         $storedToken = StoredToken::fromSocialiteToken($token);
-        Cache::driver($this->driver)->put($this->cacheKey, $storedToken->toArray(), now()->addSeconds($token->expiresIn));
+        Cache::driver($this->driver)->put($this->cacheKey, $storedToken->toArray(), now()->addDays(90));
     }
 
     /**
