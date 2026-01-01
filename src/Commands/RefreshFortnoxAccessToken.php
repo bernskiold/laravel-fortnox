@@ -2,16 +2,18 @@
 
 namespace BernskioldMedia\Fortnox\Commands;
 
+use function app;
+
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
+
+use function config;
+
 use Illuminate\Console\Command;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\Token;
-use function app;
-use function config;
 
 class RefreshFortnoxAccessToken extends Command
 {
-
     protected $signature = 'fortnox:refresh-access-token
                             {--force : Force the refresh of the access token, even if it is not expired.}';
 
@@ -26,14 +28,16 @@ class RefreshFortnoxAccessToken extends Command
 
         $token = $storageProvider->getToken();
 
-        if (!$token) {
+        if (! $token) {
             $this->error('No access token found. Please authenticate with Fortnox first.');
+
             return self::FAILURE;
         }
 
         // Refresh if token expires within 5 minutes (or is already expired)
-        if (now()->addMinutes(5)->lessThan($token->expiresAt) && !$this->option('force')) {
+        if (now()->addMinutes(5)->lessThan($token->expiresAt) && ! $this->option('force')) {
             $this->info('Access token is still valid. No need to refresh. Use with --force to refresh anyway.');
+
             return self::SUCCESS;
         }
 
@@ -48,5 +52,4 @@ class RefreshFortnoxAccessToken extends Command
 
         return self::SUCCESS;
     }
-
 }

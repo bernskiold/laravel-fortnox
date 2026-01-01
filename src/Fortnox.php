@@ -18,11 +18,9 @@ use BernskioldMedia\Fortnox\Resources\Voucher;
 
 class Fortnox
 {
-
     public function __construct(
         protected FortnoxClient $client
-    )
-    {
+    ) {
     }
 
     public function absenceTransactions(): AbsenceTransaction
@@ -89,5 +87,4 @@ class Fortnox
     {
         return new Voucher($this->client);
     }
-
 }

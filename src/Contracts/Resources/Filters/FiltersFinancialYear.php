@@ -6,7 +6,6 @@ use Carbon\Carbon;
 
 trait FiltersFinancialYear
 {
-
     public function financialYear(int $year): static
     {
         $this->query['financialyear'] = $year;
@@ -20,5 +19,4 @@ trait FiltersFinancialYear
 
         return $this;
     }
-
 }

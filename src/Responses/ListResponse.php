@@ -6,7 +6,6 @@ use Illuminate\Support\Collection;
 
 class ListResponse
 {
-
     public int $totalRecords;
     public int $totalPages;
     public int $currentPage;
@@ -29,5 +28,4 @@ class ListResponse
     {
         return $this->data;
     }
-
 }

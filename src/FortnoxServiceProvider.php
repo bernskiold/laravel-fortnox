@@ -6,6 +6,9 @@ use BernskioldMedia\Fortnox\Commands\RefreshFortnoxAccessToken;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
+
+use function config;
+
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Arr;
 use Laravel\Socialite\Contracts\Factory;
@@ -13,7 +16,7 @@ use RateLimiter;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use function config;
+
 use function url;
 
 class FortnoxServiceProvider extends PackageServiceProvider
@@ -46,7 +49,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
             ]);
         });
 
-        RateLimiter::for('fortnox', fn() => Limit::perSecond(25, 5));
+        RateLimiter::for('fortnox', fn () => Limit::perSecond(25, 5));
     }
 
     public function registeringPackage()

@@ -2,24 +2,22 @@
 
 namespace BernskioldMedia\Fortnox\Controllers;
 
+use function app;
+
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
+
+use function config;
+use function explode;
+
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\Token;
-use Laravel\Socialite\Two\User;
-use function app;
-use function config;
-use function dd;
-use function explode;
-use function hash_equals;
-use function is_null;
+
 use function redirect;
-use function str;
 use function url;
 
 class FortnoxAuthController
 {
-
     public function toFortnox(Request $request)
     {
         $request->session()->put('fortnox.oauth.request_url', url()->previous());

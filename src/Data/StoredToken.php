@@ -14,8 +14,7 @@ class StoredToken implements Arrayable, Serializable
         public string          $token,
         public string          $refreshToken,
         public CarbonInterface $expiresAt,
-    )
-    {
+    ) {
     }
 
     public function toArray()
