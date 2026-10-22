@@ -11,7 +11,7 @@ use function config;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Arr;
-use Laravel\Socialite\Contracts\Factory;
+use Laravel\Socialite\Facades\Socialite;
 use RateLimiter;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -37,14 +37,13 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        $socialite = $this->app->make(Factory::class);
-        $socialite->extend('fortnox', function ($app) use ($socialite) {
+        Socialite::extend('fortnox', function ($app) {
             $config = Arr::get($app, 'config.fortnox');
 
             // Laravel 13 rebinds extend() callbacks to the manager, so $this is not the provider here.
             FortnoxServiceProvider::protectAgainstInvalidConfiguration($config);
 
-            return $socialite->buildProvider(FortnoxSocialiteProvider::class, [
+            return Socialite::buildProvider(FortnoxSocialiteProvider::class, [
                 'client_id' => Arr::get($config, 'client_id'),
                 'client_secret' => Arr::get($config, 'client_secret'),
                 'redirect' => url(Arr::get($config, 'routes.oauth.callback')),
