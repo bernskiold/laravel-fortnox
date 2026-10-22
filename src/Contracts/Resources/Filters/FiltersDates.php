@@ -6,7 +6,6 @@ use Carbon\Carbon;
 
 trait FiltersDates
 {
-
     public function from(Carbon $date): static
     {
         $this->query['fromdate'] = $date->format('Y-m-d');
@@ -20,5 +19,4 @@ trait FiltersDates
 
         return $this;
     }
-
 }

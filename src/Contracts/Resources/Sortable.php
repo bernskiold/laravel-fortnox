@@ -4,7 +4,6 @@ namespace BernskioldMedia\Fortnox\Contracts\Resources;
 
 trait Sortable
 {
-
     public function sortBy(string $field, string $order = 'asc'): static
     {
         $this->query['sortby'] = $field;

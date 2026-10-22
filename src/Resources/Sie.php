@@ -6,7 +6,6 @@ use sie\Parser;
 
 class Sie extends BaseResource
 {
-
     protected int $type = 1;
 
     public function fileType(int $type): static

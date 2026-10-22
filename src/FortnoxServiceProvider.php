@@ -6,14 +6,17 @@ use BernskioldMedia\Fortnox\Commands\RefreshFortnoxAccessToken;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
 use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
+
+use function config;
+
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Arr;
-use Laravel\Socialite\Contracts\Factory;
+use Laravel\Socialite\Facades\Socialite;
 use RateLimiter;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use function config;
+
 use function url;
 
 class FortnoxServiceProvider extends PackageServiceProvider
@@ -34,19 +37,20 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        $socialite = $this->app->make(Factory::class);
-        $socialite->extend('fortnox', function ($app) use ($socialite) {
+        Socialite::extend('fortnox', function ($app) {
             $config = Arr::get($app, 'config.fortnox');
-            $this->protectAgainstInvalidConfiguration($config);
 
-            return $socialite->buildProvider(FortnoxSocialiteProvider::class, [
+            // Laravel 13 rebinds extend() callbacks to the manager, so $this is not the provider here.
+            FortnoxServiceProvider::protectAgainstInvalidConfiguration($config);
+
+            return Socialite::buildProvider(FortnoxSocialiteProvider::class, [
                 'client_id' => Arr::get($config, 'client_id'),
                 'client_secret' => Arr::get($config, 'client_secret'),
                 'redirect' => url(Arr::get($config, 'routes.oauth.callback')),
             ]);
         });
 
-        RateLimiter::for('fortnox', fn() => Limit::perSecond(25, 5));
+        RateLimiter::for('fortnox', fn () => Limit::perSecond(25, 5));
     }
 
     public function registeringPackage()
@@ -63,7 +67,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
             // Auto-refresh token if expired or expiring soon
             if ($storedToken && now()->addMinutes(5)->greaterThan($storedToken->expiresAt)) {
-                $newToken = \Laravel\Socialite\Facades\Socialite::driver('fortnox')->refreshToken($storedToken->refreshToken);
+                $newToken = FortnoxSocialiteProvider::resolve()->refreshToken($storedToken->refreshToken);
                 $tokenStorage->storeToken($newToken);
                 $storedToken = $tokenStorage->getToken();
             }
@@ -84,7 +88,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
         $this->app->alias(Fortnox::class, 'laravel-fortnox');
     }
 
-    protected function protectAgainstInvalidConfiguration(array $config): void
+    public static function protectAgainstInvalidConfiguration(array $config): void
     {
         if (empty($config['storage_provider'])) {
             throw InvalidConfiguration::missingStorageProvider();

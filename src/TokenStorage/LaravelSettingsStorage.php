@@ -5,14 +5,10 @@ namespace BernskioldMedia\Fortnox\TokenStorage;
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use BernskioldMedia\Fortnox\Data\StoredToken;
 use BernskioldMedia\Fortnox\Exceptions\InvalidConfiguration;
-use Illuminate\Support\Facades\Cache;
 use Laravel\Socialite\Two\Token;
-use function serialize;
-use function unserialize;
 
 class LaravelSettingsStorage implements TokenStorage
 {
-
     protected string $settingsClass;
 
     protected string $settingName;
@@ -22,13 +18,13 @@ class LaravelSettingsStorage implements TokenStorage
         $settingsClass = config('fortnox.provider_configuration.laravel_settings.settings_class');
         $settingName = config('fortnox.provider_configuration.laravel_settings.setting_name');
 
-        if (!$settingsClass) {
+        if (! $settingsClass) {
             throw InvalidConfiguration::invalidStorageConfiguration(
                 'The settings class is not set in the configuration.'
             );
         }
 
-        if (!$settingName) {
+        if (! $settingName) {
             throw InvalidConfiguration::invalidStorageConfiguration(
                 'The setting name is not set in the configuration.'
             );
@@ -81,6 +77,6 @@ class LaravelSettingsStorage implements TokenStorage
     {
         $settings = app($this->settingsClass);
 
-        return !empty($settings->{$this->settingName});
+        return ! empty($settings->{$this->settingName});
     }
 }

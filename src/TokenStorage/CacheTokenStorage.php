@@ -9,7 +9,6 @@ use Laravel\Socialite\Two\Token;
 
 class CacheTokenStorage implements TokenStorage
 {
-
     protected string $cacheKey;
 
     protected ?string $driver;
@@ -36,7 +35,7 @@ class CacheTokenStorage implements TokenStorage
     {
         $tokenData = Cache::driver($this->driver)->get($this->cacheKey);
 
-        if(!$tokenData) {
+        if (! $tokenData) {
             return null;
         }
 
