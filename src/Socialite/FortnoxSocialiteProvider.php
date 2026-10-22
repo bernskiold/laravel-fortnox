@@ -4,11 +4,13 @@ namespace BernskioldMedia\Fortnox\Socialite;
 
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
+use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\InvalidStateException;
 use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\Token;
 use Laravel\Socialite\Two\User;
+use LogicException;
 use function base64_encode;
 use function config;
 use function explode;
@@ -18,6 +20,20 @@ class FortnoxSocialiteProvider extends AbstractProvider implements ProviderInter
 {
 
     protected $scopeSeparator = ' ';
+
+    /**
+     * Resolve the registered fortnox Socialite driver.
+     */
+    public static function resolve(): self
+    {
+        $driver = Socialite::driver('fortnox');
+
+        if (! $driver instanceof self) {
+            throw new LogicException('The fortnox Socialite driver must resolve to '.self::class.'.');
+        }
+
+        return $driver;
+    }
 
     protected function getAuthUrl($state)
     {

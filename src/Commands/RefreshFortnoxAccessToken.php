@@ -4,7 +4,7 @@ namespace BernskioldMedia\Fortnox\Commands;
 
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
 use Illuminate\Console\Command;
-use Laravel\Socialite\Facades\Socialite;
+use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
 use Laravel\Socialite\Two\Token;
 use function app;
 use function config;
@@ -40,7 +40,7 @@ class RefreshFortnoxAccessToken extends Command
         /**
          * @var Token $newToken
          */
-        $newToken = Socialite::driver('fortnox')->refreshToken($token->refreshToken);
+        $newToken = FortnoxSocialiteProvider::resolve()->refreshToken($token->refreshToken);
 
         $storageProvider->storeToken($newToken);
 

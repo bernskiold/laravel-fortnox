@@ -65,7 +65,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
 
             // Auto-refresh token if expired or expiring soon
             if ($storedToken && now()->addMinutes(5)->greaterThan($storedToken->expiresAt)) {
-                $newToken = \Laravel\Socialite\Facades\Socialite::driver('fortnox')->refreshToken($storedToken->refreshToken);
+                $newToken = FortnoxSocialiteProvider::resolve()->refreshToken($storedToken->refreshToken);
                 $tokenStorage->storeToken($newToken);
                 $storedToken = $tokenStorage->getToken();
             }

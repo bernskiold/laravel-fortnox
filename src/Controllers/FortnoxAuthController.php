@@ -3,8 +3,8 @@
 namespace BernskioldMedia\Fortnox\Controllers;
 
 use BernskioldMedia\Fortnox\Contracts\TokenStorage;
+use BernskioldMedia\Fortnox\Socialite\FortnoxSocialiteProvider;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\Token;
 use Laravel\Socialite\Two\User;
 use function app;
@@ -32,7 +32,7 @@ class FortnoxAuthController
             $parameters['account_type'] = 'service';
         }
 
-        return Socialite::driver('fortnox')
+        return FortnoxSocialiteProvider::resolve()
             ->with($parameters)
             ->scopes(explode(',', config('fortnox.scopes', '')))
             ->redirect();
@@ -53,7 +53,7 @@ class FortnoxAuthController
             /**
              * @var Token $token
              */
-            $token = Socialite::driver('fortnox')->token();
+            $token = FortnoxSocialiteProvider::resolve()->token();
         } catch (\Exception $e) {
             return redirect()->to($requestUrl)
                 ->with('type', 'fortnox')
