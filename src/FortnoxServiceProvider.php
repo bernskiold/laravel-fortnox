@@ -37,7 +37,9 @@ class FortnoxServiceProvider extends PackageServiceProvider
         $socialite = $this->app->make(Factory::class);
         $socialite->extend('fortnox', function ($app) use ($socialite) {
             $config = Arr::get($app, 'config.fortnox');
-            $this->protectAgainstInvalidConfiguration($config);
+
+            // Laravel 13 rebinds extend() callbacks to the manager, so $this is not the provider here.
+            FortnoxServiceProvider::protectAgainstInvalidConfiguration($config);
 
             return $socialite->buildProvider(FortnoxSocialiteProvider::class, [
                 'client_id' => Arr::get($config, 'client_id'),
@@ -84,7 +86,7 @@ class FortnoxServiceProvider extends PackageServiceProvider
         $this->app->alias(Fortnox::class, 'laravel-fortnox');
     }
 
-    protected function protectAgainstInvalidConfiguration(array $config): void
+    public static function protectAgainstInvalidConfiguration(array $config): void
     {
         if (empty($config['storage_provider'])) {
             throw InvalidConfiguration::missingStorageProvider();
