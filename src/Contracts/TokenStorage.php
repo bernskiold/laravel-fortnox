@@ -30,5 +30,4 @@ interface TokenStorage
      * @return bool
      */
     public function hasToken(): bool;
-
 }

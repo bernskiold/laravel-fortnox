@@ -6,7 +6,6 @@ use Exception;
 
 class InvalidConfiguration extends Exception
 {
-
     public static function missingClientId(): self
     {
         return new self('Missing client ID. To use the Fortnox API you need to set a valid client ID.');
@@ -31,5 +30,4 @@ class InvalidConfiguration extends Exception
     {
         return new self("Invalid Storage Configuration: {$message}");
     }
-
 }
