@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-fortnox` will be documented in this file.
 
+## 0.2.1 - 2026-11-20
+
+### What's Changed
+
+* Add PHP 8.5 and 8.6 support by @ErikBernskiold in https://github.com/bernskiold/laravel-fortnox/pull/28
+* Support stable PHP 8.6 by @ErikBernskiold in https://github.com/bernskiold/laravel-fortnox/pull/29
+
+**Full Changelog**: https://github.com/bernskiold/laravel-fortnox/compare/0.2.0...0.2.1
+
 ## 0.2.0 - 2026-10-22
 
 ### Fixed
