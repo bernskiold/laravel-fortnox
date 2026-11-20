@@ -9,8 +9,6 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    # PHP 8.6 is pre-release; let it fail without failing the build.
-    continue-on-error: ${{ matrix.php == '8.6' }}
     strategy:
       fail-fast: true
       matrix:
