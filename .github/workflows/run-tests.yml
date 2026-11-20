@@ -9,8 +9,6 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    # PHP 8.6 is pre-release; let it fail without failing the build.
-    continue-on-error: ${{ matrix.php == '8.6' }}
     strategy:
       fail-fast: true
       matrix:
@@ -39,6 +37,8 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
           coverage: none
+        env:
+          update: true
 
       - name: Setup problem matchers
         run: |
